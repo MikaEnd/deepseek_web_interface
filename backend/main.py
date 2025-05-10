@@ -1,5 +1,6 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 from backend.deepseek_api import ask_deepseek
 from backend.history import save_message, get_messages
 from dotenv import load_dotenv
@@ -15,26 +16,23 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+class ChatRequest(BaseModel):
+    prompt: str
+
 @app.get("/")
 async def root():
     return {"message": "Deepseek Web Interface API running."}
 
 @app.post("/chat")
-async def chat(request: Request):
-    data = await request.json()
-    prompt = data.get("prompt", "")
+async def chat(data: ChatRequest):
+    prompt = data.prompt
 
-    # Сохраняем сообщение пользователя
     save_message("user", prompt)
 
-    # Загружаем всю историю
     history = get_messages()
     messages = [{"role": h["role"], "content": h["content"]} for h in history]
 
-    # Отправляем полный контекст в Deepseek
     response = ask_deepseek(messages)
-
-    # Сохраняем ответ ИИ
     save_message("assistant", response)
 
     return {"response": response}
