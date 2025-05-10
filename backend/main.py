@@ -1,9 +1,12 @@
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from backend.deepseek_api import ask_deepseek
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = FastAPI()
 
-# Разрешаем CORS для тестов и фронтенда
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -19,4 +22,6 @@ async def root():
 async def chat(request: Request):
     data = await request.json()
     prompt = data.get("prompt", "")
-    return {"response": f"Ты отправил: {prompt}"}
+    messages = [{"role": "user", "content": prompt}]
+    response = ask_deepseek(messages)
+    return {"response": response}
