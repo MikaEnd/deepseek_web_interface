@@ -28,3 +28,12 @@
 
 WSL запускается вручную, интерфейс работает автоматически.
 
+# MEMORY
+
+## systemd
+- deepseek.service — запускает backend (FastAPI + Uvicorn)
+- deepseek_frontend.service — запускает frontend (React + Vite)
+
+## Порты
+- 8000 — backend
+- 5173 — frontend

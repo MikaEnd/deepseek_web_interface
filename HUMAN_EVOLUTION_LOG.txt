@@ -8,3 +8,4 @@
 [2025-05-10 17:45] Создан интерфейс ChatBox.jsx с отправкой сообщений и выводом ответов Deepseek через API.
 [2025-05-10 18:20] Проброс порта 8000 с WSL на Windows через netsh. Чат React получил стабильный доступ к FastAPI.
 2025-05-11 17:XX — Объединён запуск backend и frontend в systemd-сервис deepseek.service. Теперь запуск WSL включает оба компонента.
+[2025-05-11] Добавлен systemd-сервис для автозапуска фронтенда Deepseek Web Interface: `deepseek_frontend.service`.
