@@ -1,72 +1,63 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState } from "react";
 
 export default function ChatBox() {
   const [messages, setMessages] = useState([]);
-  const [prompt, setPrompt] = useState('');
+  const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
-  const endRef = useRef(null);
 
   const sendMessage = async () => {
-    if (!prompt.trim()) return;
-    const newMessages = [...messages, { role: 'user', content: prompt }];
-    setMessages(newMessages);
-    setPrompt('');
+    if (!input.trim()) return;
+
+    const userMsg = { role: "user", content: input };
+    setMessages((prev) => [...prev, userMsg]);
+    setInput("");
     setLoading(true);
 
     try {
-      const res = await fetch('http://127.0.0.1:8000/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt }),
+      const res = await fetch("http://127.0.0.1:8000/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt: input }),
       });
+
       const data = await res.json();
-      setMessages([...newMessages, { role: 'assistant', content: data.response }]);
-    } catch (e) {
-      setMessages([...newMessages, { role: 'assistant', content: '❌ Ошибка ответа от сервера' }]);
+      const botMsg = { role: "assistant", content: data.response };
+      setMessages((prev) => [...prev, botMsg]);
+    } catch (err) {
+      setMessages((prev) => [...prev, { role: "assistant", content: "Ошибка соединения." }]);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleKeyDown = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage();
-    }
-  };
-
-  useEffect(() => {
-    endRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
-
   return (
-    <div className="flex flex-col h-screen max-w-3xl mx-auto p-4">
-      <div className="flex-1 overflow-y-auto space-y-2 mb-4 bg-white rounded-xl p-4 shadow-inner">
-        {messages.map((msg, idx) => (
+    <div className="flex flex-col h-screen p-4 bg-gray-100">
+      <div className="flex-1 overflow-y-auto space-y-2 mb-4">
+        {messages.map((msg, i) => (
           <div
-            key={idx}
-            className={`whitespace-pre-wrap p-3 rounded-xl ${
-              msg.role === 'user'
-                ? 'bg-blue-100 text-right self-end'
-                : 'bg-gray-100 text-left self-start'
+            key={i}
+            className={`p-3 rounded-lg max-w-xl ${
+              msg.role === "user" ? "bg-blue-100 self-end" : "bg-gray-200 self-start"
             }`}
           >
-            <span className="text-sm text-gray-600 block">{msg.role === 'user' ? 'Вы' : 'ИИ'}</span>
-            <span>{msg.content}</span>
+            {msg.content}
           </div>
         ))}
-        {loading && <div className="italic text-gray-400">ИИ печатает...</div>}
-        <div ref={endRef} />
+        {loading && <div className="text-gray-400 italic">ИИ думает...</div>}
       </div>
-
-      <textarea
-        rows={2}
-        className="w-full border rounded-xl p-3 shadow resize-none"
-        placeholder="Напишите сообщение и нажмите Enter..."
-        value={prompt}
-        onChange={(e) => setPrompt(e.target.value)}
-        onKeyDown={handleKeyDown}
-      />
+      <div className="flex gap-2">
+        <input
+          type="text"
+          className="flex-1 p-2 border rounded"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+          placeholder="Введите сообщение..."
+        />
+        <button onClick={sendMessage} className="px-4 py-2 bg-blue-500 text-white rounded">
+          Отправить
+        </button>
+      </div>
     </div>
   );
 }
