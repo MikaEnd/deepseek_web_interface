@@ -16,4 +16,15 @@
 - [✓] Репозиторий GitHub синхронизирован через sync_github.sh
 - [✓] .env подключён, ключи Deepseek скрыты
 - [✓] Протокол соблюдается: nano → sync → тест → лог → memory
+- [✓] React обращается к FastAPI через http://127.0.0.1:8000 (portproxy)
+# Deepseek Web Interface
+
+## Автозапуск (через systemd)
+
+- При запуске WSL активируется systemd-сервис `deepseek.service`
+- Он запускает:
+  - `uvicorn` (backend API на 8000)
+  - `vite` (frontend чат на 5173)
+
+WSL запускается вручную, интерфейс работает автоматически.
 
